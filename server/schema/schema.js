@@ -2,7 +2,6 @@ const graphql = require('graphql')
 const modelBook = require('../models/book.js');
 const modelAuthor = require('../models/author.js');
 
-
 const objType = graphql.GraphQLObjectType
 const strType = graphql.GraphQLString
 const intType = graphql.GraphQLInt
@@ -15,21 +14,11 @@ const idType = graphql.GraphQLID
 // console.log(a,b,c,c,c,c)
 // => 1,2,3,3,3,3
 
-//------------- hardcoded data--------------
 
-const books = [
-    { id: '1', name: 'harry', price: 2, authorId:'1'},
-    { id: '2', name: 'ring', price: 3, authorId:'2'},
-    { id: '3', name: 'nania', price: 4, authorId:'3'}
-]
+function consoling (a,b) {
+    console.log('a',a,'b',b)
+}
 
-const authors = [
-    { id: '1', name: 'joan', city: 'Yate'},
-    { id: '2', name: 'tolkin', city: 'Bournemouth'},
-    { id: '3', name: 'lewis', city: 'oxford'}
-]
-
-//------------- hardcoded data--------------
 
 const bookType = new objType({
     name: 'book',
@@ -37,35 +26,31 @@ const bookType = new objType({
     id: {type: idType},
     name: {type: strType},
     price: {type: intType},
-    authorId: {type: idType},
-    author: {
-        type : authorType,
-        resolve(parent, args){
-            // return authors.filter( e => {
-            //     return e.id === parent.authorId
-            // })[0]
-            }
-        }
-    })
+    authorName: {type: strType},
+    // author: {
+    //     type : new listType(authorType),
+    //     resolve(authorList, args){
+    //         return modelAuthor.find( authorList.name === "james" )
+    //     }
+    // }
 })
-
+})
 
 
 const authorType = new objType({
     name: 'author',
     fields: () => ({
-    id: {type: idType},
-    name: {type: strType},
-    city: {type: strType},
-    books: {
-        type: new listType(bookType),
-        resolve (parent, args) {
-            // return books.filter( e => e.authorId === parent.id)
-        }
-    }
+        id: {type: idType},
+        name: {type: strType},
+        city: {type: strType},
+        // books: {
+        //     type: new listType(bookType),
+        //     resolve (parent, args) {
+        //         return book.find(parent => parent.authorName === args.name)
+        //     }
+        // }
     })
 })
-
 
 
 const rootQuery = new objType ({
@@ -74,42 +59,35 @@ const rootQuery = new objType ({
         book : {
             type: bookType,
             args: {
-                id: {type: idType}
+                name: {type: strType}
             },
             resolve(parent, args) {
-                // for(let i = 0; i < books.length; i++) {
-                //     if(books[i].id === args.id){
-                //         return books[i]
-                //     }
-                // }
-                return modelBook.findById(args.id)
+                console.log("p", parent,
+                            'a', args.name,
+                            'm',modelBook.find({name: args.name})  
+                            )
+                return modelBook.find({name: args.name})
             }
         },
         author : {
             type: authorType,
             args: {
-                id: {type: idType}
+                name: {type: strType}
             },
             resolve(parent, args) {
-                //  for(let i = 0; i < authors.length; i++) {
-                //     if(authors[i].id === args.id){
-                //         return authors[i]
-                //     }
-                // }
-                return modelAuthor.findByid(args.id)
+                return modelAuthor.find({name: args.name})
             }
         },
         books:{
             type: new listType(bookType),
             resolve(parent, args){
-                // return books
+                // console.log('parent', parent)
                 return modelBook.find({})
             }
         },
         authors:{
             type: new listType(authorType),
             resolve(parent, args) {
-                // return authors
                 return modelAuthor.find({})
             }
         }
@@ -136,7 +114,6 @@ const mutation = new objType({
                     city: args.city
                 });
                 let k = author.save();
-                // console.log(k)
                 return k
             }
         },
@@ -149,15 +126,15 @@ const mutation = new objType({
                 price: {
                     type: intType
                 },
-                authorId: {
-                    type: idType
+                authorName: {
+                    type: strType
                 }
             },
             resolve (parent, args) {
                 let book = new modelBook({
                     name : args.name,
                     price: args.price,
-                    authorId: args.authorId
+                    authorName: args.authorName
                 })
                 return book.save()
             }
