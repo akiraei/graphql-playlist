@@ -28,9 +28,10 @@ const bookType = new objType({
     price: {type: intType},
     authorName: {type: strType},
     // author: {
-    //     type : new listType(authorType),
-    //     resolve(authorList, args){
-    //         return modelAuthor.find( authorList.name === "james" )
+    //     type : authorType,
+    //     resolve(book, args){
+    //         console.log(book)
+    //         return modelAuthor.find(book.authorName)
     //     }
     // }
 })
@@ -59,14 +60,10 @@ const rootQuery = new objType ({
         book : {
             type: bookType,
             args: {
-                name: {type: strType}
+                id: {type: idType}
             },
             resolve(parent, args) {
-                console.log("p", parent,
-                            'a', args.name,
-                            'm',modelBook.find({name: args.name})  
-                            )
-                return modelBook.find({name: args.name})
+                return modelBook.findById(args.id) // active
             }
         },
         author : {
@@ -75,20 +72,19 @@ const rootQuery = new objType ({
                 name: {type: strType}
             },
             resolve(parent, args) {
-                return modelAuthor.find({name: args.name})
+                return modelAuthor.find({name: args.name}) // un-active
             }
         },
         books:{
             type: new listType(bookType),
             resolve(parent, args){
-                // console.log('parent', parent)
-                return modelBook.find({})
+                return modelBook.find({}) // active
             }
         },
         authors:{
             type: new listType(authorType),
             resolve(parent, args) {
-                return modelAuthor.find({})
+                return modelAuthor.find({}) //active
             }
         }
     }
