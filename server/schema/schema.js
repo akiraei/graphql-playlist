@@ -55,7 +55,7 @@ const authorType = new objType({
 
 
 const rootQuery = new objType ({
-    name: 'rootQueryType',
+    name: 'RootQueryType',
     fields: {
         book : {
             type: bookType,
@@ -69,10 +69,12 @@ const rootQuery = new objType ({
         author : {
             type: authorType,
             args: {
+                id: {type: idType},
                 name: {type: strType}
             },
             resolve(parent, args) {
-                return modelAuthor.find({name: args.name}) // un-active
+                // return modelAuthor.find({name: args.name}) // un-active
+                return modelAuthor.findById(args.id)
             }
         },
         books:{
